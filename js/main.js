@@ -51,7 +51,9 @@ class Particula {
         this.factorAlfa = 0.05 //velocidad a la que desaparece
         this.color = 'green'
 
-        this.gravedad = 1
+        this.gravedad = 1.4
+        //this.gravedad = 2
+        //this.gravedad = 0
 
         this.resetea(this.x, this.y)
     }
