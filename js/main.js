@@ -17,18 +17,31 @@ var factorY = heightCanvasAmpliado/heightCanvas
 
 //reescalamos el canvas mediante css
 function reescalaCanvas() {
-    canvas.style.width = widthCanvasAmpliado
-    canvas.style.height = heightCanvasAmpliado
+    canvas.style.width = widthCanvasAmpliado + 'px'
+    canvas.style.height = heightCanvasAmpliado + 'px'
+}
+
+//posicion del raton
+var ratonX = 0
+var ratonY = 0
+
+function posicionRaton(raton) {
+    ratonX = Math.floor(raton.pageX/factorX)
+    ratonY = Math.floor(raton.pageY/factorY)
+    
 }
 
 // Particulas-------------------------
 var particulas = new Array()
-var numParticulas = 100
+var numParticulas = 300
 
 class Particula {
-    constructor(x, y) {
+
+    constructor(x, y, orden) {
         this.x = x
         this.y = y
+
+        this.orden = orden
 
         this.alfa //grado de transparencia
 
@@ -36,7 +49,9 @@ class Particula {
         this.vy //velocidad en y
 
         this.factorAlfa = 0.05 //velocidad a la que desaparece
-        this.color = '#ee7600'
+        this.color = 'green'
+
+        this.gravedad = 1
 
         this.resetea(this.x, this.y)
     }
@@ -52,20 +67,35 @@ class Particula {
     }
 
     actualiza() {
-        this.alfa -= this.factorAlfa
 
-        this.x += this.vx
-        this.y += this.vy
+        if(this.orden <= 0) {
+            this.alfa -= this.factorAlfa
 
-        //dibuja la particula
-        this.dibuja()
+            this.x += this.vx
+            this.y += this.vy + this.gravedad
+
+
+            //momento de resetear
+            if(this.alfa <= 0) {
+                this.resetea(ratonX, ratonY)
+            }
+
+            //dibuja la particula
+            this.dibuja()
+
+        } else {
+            this.orden -= 2 //para ajustar el caudal de particulas
+        }
+
     }
+
+
 
     dibuja() {
         ctx.save()
-        ctx.globalAlfa = this.alfa
+        ctx.globalAlpha = this.alfa
         ctx.fillStyle = this.color
-        ctx.fillRect = (this.x, this.y, 10, 10)
+        ctx.fillRect(this.x, this.y, 1, 1)
         ctx.restore()
     }
 
@@ -78,11 +108,20 @@ function inicializa() {
     canvas = document.getElementById('canvas')
     ctx = canvas.getContext('2d')
 
+    //inicializamos tamaño canvas
+    canvas.width = widthCanvas
+    canvas.height = heightCanvas
+
+    //reescalamos
     reescalaCanvas()
+
+    //añadimos listener para escuchar al raton
+
+    canvas.addEventListener('mousemove',  posicionRaton, false)
 
     // creamos las particulas
     for(i = 0; i < numParticulas; i++) {
-        particulas[i] = new Particula(70, 50)
+        particulas[i] = new Particula(ratonX, ratonY, i)
     }
 
     //añadimos el bucle principal
